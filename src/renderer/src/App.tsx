@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { RequestPanel } from "./components/RequestPanel";
 import { ResponsePanel } from "./components/ResponsePanel";
-import type { RequestConfig, ResponseData } from "./types";
+import type { RequestConfig, ResponseData, SavedRequest } from "./types";
 
 const mockResponse: ResponseData = {
   status: 200,
@@ -44,15 +44,13 @@ export default function App(): React.JSX.Element {
   const [request, setRequest] = useState<RequestConfig>(initialRequest);
   const [response, setResponse] = useState<ResponseData>(mockResponse);
   const [isLoading, setIsLoading] = useState(false);
+  const [requestHistory, setRequestHistory] = useState<SavedRequest[]>([]);
 
   const handleSendRequest = async (): Promise<void> => {
-    console.log("start handleSendRequest");
     if (!request.url) {
-      console.log("handleSendRequest !request.url");
       return;
     }
 
-    console.log("handleSendRequest request:", request);
     setIsLoading(true);
 
     try {
@@ -65,6 +63,16 @@ export default function App(): React.JSX.Element {
       });
 
       setResponse(response);
+      
+      // Save request to history
+      const newSavedRequest: SavedRequest = {
+        ...request,
+        id: Date.now().toString(),
+        timestamp: Date.now(),
+        name: `${request.method} ${new URL(request.url).pathname || request.url}`,
+      };
+      
+      setRequestHistory(prev => [newSavedRequest, ...prev]);
     } catch (error) {
       setResponse({
         status: 0,
@@ -77,7 +85,6 @@ export default function App(): React.JSX.Element {
     } finally {
       setIsLoading(false);
     }
-    console.log("handleSendRequest response:", response);
   };
 
   const handleNewRequest = (): void => {
@@ -91,12 +98,23 @@ export default function App(): React.JSX.Element {
     });
   };
 
-  const handleSelectRequest = (method: string, url: string): void => {
-    setRequest((prev) => ({
-      ...prev,
-      method: method as RequestConfig["method"],
-      url,
-    }));
+  const handleSelectRequest = (savedRequest: SavedRequest): void => {
+    setRequest({
+      method: savedRequest.method,
+      url: savedRequest.url,
+      params: savedRequest.params,
+      headers: savedRequest.headers,
+      body: savedRequest.body,
+      bodyType: savedRequest.bodyType,
+    });
+  };
+
+  const handleDeleteRequest = (id: string): void => {
+    setRequestHistory(prev => prev.filter(req => req.id !== id));
+  };
+
+  const handleClearHistory = (): void => {
+    setRequestHistory([]);
   };
 
   return (
@@ -104,6 +122,9 @@ export default function App(): React.JSX.Element {
       <Sidebar
         onNewRequest={handleNewRequest}
         onSelectRequest={handleSelectRequest}
+        onDeleteRequest={handleDeleteRequest}
+        onClearHistory={handleClearHistory}
+        requestHistory={requestHistory}
       />
       <main className="flex-1 flex flex-col overflow-hidden">
         <RequestPanel

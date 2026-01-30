@@ -13,6 +13,12 @@ export interface RequestConfig {
   bodyType: 'none' | 'json' | 'form' | 'text';
 }
 
+export interface SavedRequest extends RequestConfig {
+  id: string;
+  timestamp: number;
+  name: string;
+}
+
 export interface ResponseData {
   status: number;
   statusText: string;
