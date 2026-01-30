@@ -2,7 +2,7 @@
 const electron = require("electron");
 const path = require("path");
 const utils = require("@electron-toolkit/utils");
-const icon = path.join(__dirname, "../../resources/icon.png");
+const icon = "data:image/png;base64,";
 function createWindow() {
   const mainWindow = new electron.BrowserWindow({
     width: 1400,
@@ -52,9 +52,13 @@ electron.ipcMain.handle("http-request", async (event, requestConfig) => {
   try {
     let url = requestConfig.url;
     if (requestConfig.method === "GET" && requestConfig.headers) {
-      const params = requestConfig.headers.filter((h) => h.enabled && h.key);
+      const params = requestConfig.headers.filter(
+        (h) => h.enabled && h.key
+      );
       if (params.length > 0) {
-        const queryString = params.map((p) => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`).join("&");
+        const queryString = params.map(
+          (p) => `${encodeURIComponent(p.key)}=${encodeURIComponent(p.value)}`
+        ).join("&");
         url = `${url}${url.includes("?") ? "&" : "?"}${queryString}`;
       }
     }
@@ -69,15 +73,21 @@ electron.ipcMain.handle("http-request", async (event, requestConfig) => {
         reject(new Error("Request timeout after 30 seconds"));
       }, 3e4);
       if (requestConfig.headers && requestConfig.headers.length > 0) {
-        requestConfig.headers.filter((h) => h.enabled && h.key).forEach((h) => {
+        requestConfig.headers.filter(
+          (h) => h.enabled && h.key
+        ).forEach((h) => {
           request.setHeader(h.key, h.value);
         });
       }
-      if (requestConfig.method === "POST" && requestConfig.body && requestConfig.bodyType !== "none") {
+      const methodsWithBody = ["POST", "PUT", "PATCH"];
+      if (methodsWithBody.includes(requestConfig.method) && requestConfig.body && requestConfig.bodyType !== "none") {
         if (requestConfig.bodyType === "json") {
           request.setHeader("Content-Type", "application/json");
         } else if (requestConfig.bodyType === "form") {
-          request.setHeader("Content-Type", "application/x-www-form-urlencoded");
+          request.setHeader(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+          );
         } else if (requestConfig.bodyType === "text") {
           request.setHeader("Content-Type", "text/plain");
         }
@@ -114,7 +124,7 @@ electron.ipcMain.handle("http-request", async (event, requestConfig) => {
         clearTimeout(timeoutId);
         reject(error);
       });
-      if (requestConfig.method === "POST" && requestConfig.body && requestConfig.bodyType !== "none") {
+      if (methodsWithBody.includes(requestConfig.method) && requestConfig.body && requestConfig.bodyType !== "none") {
         request.write(requestConfig.body);
       }
       request.end();

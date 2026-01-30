@@ -129,9 +129,10 @@ ipcMain.handle("http-request", async (event, requestConfig) => {
           });
       }
 
-      // Set body for POST requests
+      // Set body for POST, PUT, PATCH requests (methods that support body)
+      const methodsWithBody = ["POST", "PUT", "PATCH"];
       if (
-        requestConfig.method === "POST" &&
+        methodsWithBody.includes(requestConfig.method) &&
         requestConfig.body &&
         requestConfig.bodyType !== "none"
       ) {
@@ -190,9 +191,9 @@ ipcMain.handle("http-request", async (event, requestConfig) => {
         reject(error);
       });
 
-      // Write body for POST requests
+      // Write body for POST, PUT, PATCH requests (methods that support body)
       if (
-        requestConfig.method === "POST" &&
+        methodsWithBody.includes(requestConfig.method) &&
         requestConfig.body &&
         requestConfig.bodyType !== "none"
       ) {

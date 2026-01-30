@@ -56,20 +56,6 @@ export default function App(): React.JSX.Element {
     setIsLoading(true);
 
     try {
-      // Only support GET and POST for now
-      if (request.method !== "GET" && request.method !== "POST") {
-        setResponse({
-          status: 0,
-          statusText: "Not Supported",
-          time: 0,
-          size: "0 B",
-          headers: {},
-          body: `Method ${request.method} is not yet supported. Only GET and POST are available.`,
-        });
-        setIsLoading(false);
-        return;
-      }
-
       const response = await window.api.sendHttpRequest({
         method: request.method,
         url: request.url,
@@ -91,6 +77,7 @@ export default function App(): React.JSX.Element {
     } finally {
       setIsLoading(false);
     }
+    console.log("handleSendRequest response:", response);
   };
 
   const handleNewRequest = (): void => {
