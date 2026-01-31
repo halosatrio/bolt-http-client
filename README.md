@@ -13,11 +13,13 @@ A modern desktop HTTP client testing application built with **Electron-Vite**, *
 ## Features
 
 ### HTTP Methods (Currently Supported)
+
 - **GET** - Retrieve data with query parameters
 - **POST** - Send data with JSON/Form/Text body
 - PUT, PATCH, DELETE - UI available but not yet implemented
 
 ### Request Building
+
 - URL input with method selector (color-coded)
 - Query parameters editor (for GET requests)
 - Request headers editor
@@ -28,6 +30,7 @@ A modern desktop HTTP client testing application built with **Electron-Vite**, *
   - Text (text/plain)
 
 ### Response Viewer
+
 - Real-time status code display (color-coded)
   - 2xx: Green (Success)
   - 3xx: Yellow (Redirect)
@@ -40,6 +43,7 @@ A modern desktop HTTP client testing application built with **Electron-Vite**, *
 - Copy response body button
 
 ### Additional Features
+
 - **30-second request timeout** - Automatic timeout protection
 - Error handling with detailed messages
 - Modern dark theme interface
@@ -52,6 +56,7 @@ Renderer (React) ←→ IPC ←→ Main Process (net module) ←→ External API
 ```
 
 HTTP requests are made from the **main process** using Electron's native `net` module, which provides:
+
 - Chromium's native networking stack
 - Automatic proxy configuration
 - Better security (avoids CORS issues in renderer)
@@ -115,6 +120,7 @@ npm run build:linux  # Linux
 ## Usage
 
 ### Sending GET Requests
+
 1. Select **GET** method (blue)
 2. Enter the URL (e.g., `https://jsonplaceholder.typicode.com/posts/1`)
 3. Add query parameters in the **Params** tab (optional)
@@ -123,6 +129,7 @@ npm run build:linux  # Linux
 6. View real response in the response panel
 
 ### Sending POST Requests
+
 1. Select **POST** method (green)
 2. Enter the URL
 3. Add headers if needed (Content-Type is auto-set based on body type)
@@ -136,11 +143,13 @@ npm run build:linux  # Linux
 ### Testing Endpoints
 
 **GET Example:**
+
 - URL: `https://jsonplaceholder.typicode.com/posts/1`
 - Method: GET
 - Expected: Returns a single post object
 
 **POST Example:**
+
 - URL: `https://jsonplaceholder.typicode.com/posts`
 - Method: POST
 - Body Type: JSON
@@ -150,18 +159,22 @@ npm run build:linux  # Linux
 ## Technical Details
 
 ### IPC Communication
+
 The app uses Electron's `ipcMain.handle` and `ipcRenderer.invoke` for secure communication:
+
 - Renderer sends request config via `window.api.sendHttpRequest()`
 - Main process executes the HTTP request using `net.request()`
 - Response is returned to renderer with status, headers, body, time, and size
 
 ### Security
+
 - Context isolation enabled
 - Preload script exposes minimal API
 - No node integration in renderer
 - CSP headers configured
 
 ### Timeout & Error Handling
+
 - 30-second timeout on all requests
 - Network errors are caught and displayed
 - Invalid URLs show error messages
@@ -169,16 +182,7 @@ The app uses Electron's `ipcMain.handle` and `ipcRenderer.invoke` for secure com
 
 ## Limitations
 
-Currently implemented:
-- ✅ GET requests with query parameters
-- ✅ POST requests with body (JSON, Form, Text)
-- ✅ Custom headers
-- ✅ Response viewing
-
-Not yet implemented:
-- ⏳ PUT, PATCH, DELETE methods (UI available, needs backend wiring)
 - ⏳ File upload (multipart/form-data)
-- ⏳ Request history persistence
 - ⏳ Collection management
 - ⏳ Environment variables
 
